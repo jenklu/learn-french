@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -103,15 +104,19 @@ func (db *Database) Init(ctx context.Context) error {
 		}
 	}
 
-	// Seed exercises if empty
-	var count int
-	if err := db.Pool.QueryRow(ctx, "SELECT COUNT(*) FROM exercises").Scan(&count); err != nil {
-		return fmt.Errorf("failed to count exercises: %w", err)
-	}
+	// Note: Exercises are no longer seeded by default.
+	// They will be generated on-demand using AI (Mistral API).
+	// To seed with hardcoded exercises, set SEED_EXERCISES=true environment variable
+	if os.Getenv("SEED_EXERCISES") == "true" {
+		var count int
+		if err := db.Pool.QueryRow(ctx, "SELECT COUNT(*) FROM exercises").Scan(&count); err != nil {
+			return fmt.Errorf("failed to count exercises: %w", err)
+		}
 
-	if count == 0 {
-		if err := seedExercises(ctx, db.Pool); err != nil {
-			return fmt.Errorf("failed to seed exercises: %w", err)
+		if count == 0 {
+			if err := seedExercises(ctx, db.Pool); err != nil {
+				return fmt.Errorf("failed to seed exercises: %w", err)
+			}
 		}
 	}
 

@@ -13,6 +13,7 @@ type Config struct {
 	VAPIDPrivateKey string
 	TTSAPIKey       string
 	FrontendURL     string
+	MistralAPIKey   string
 }
 
 func Load() *Config {
@@ -25,6 +26,7 @@ func Load() *Config {
 		VAPIDPrivateKey: getEnv("VAPID_PRIVATE_KEY", ""),
 		TTSAPIKey:      getEnv("TTS_API_KEY", ""),
 		FrontendURL:    getEnv("FRONTEND_URL", "http://localhost:5173"),
+		MistralAPIKey:  getEnv("MISTRAL_API_KEY", ""),
 	}
 }
 

@@ -38,7 +38,11 @@ func main() {
 
 	// Initialize services
 	authService := services.NewAuthService(db)
-	exerciseService := services.NewExerciseService(db)
+	
+	// Initialize AI service with Mistral API
+	aiService := services.NewAIService(cfg)
+	
+	exerciseService := services.NewExerciseService(db, aiService)
 	reminderService := services.NewReminderService(db, services.VAPIDConfig{
 		PublicKey:  cfg.VAPIDPublicKey,
 		PrivateKey: cfg.VAPIDPrivateKey,
@@ -62,6 +66,7 @@ func main() {
 	exerciseHandler := handlers.NewExerciseHandler(exerciseService, store, sessionName)
 	reminderHandler := handlers.NewReminderHandler(reminderService, store, sessionName)
 	adminHandler := handlers.NewAdminHandler(adminService, store, sessionName)
+	aiHandler := handlers.NewAIHandler(exerciseService, store, sessionName)
 
 	// Create router
 	r := mux.NewRouter()
@@ -100,6 +105,11 @@ func main() {
 	admin.HandleFunc("/users", adminHandler.DeleteUser).Methods("DELETE")
 	admin.HandleFunc("/users/password", adminHandler.UpdateUserPassword).Methods("PUT")
 	admin.HandleFunc("/users/{id}", adminHandler.GetUser).Methods("GET")
+
+	// AI routes (admin-only)
+	admin.HandleFunc("/ai/exercises/generate", aiHandler.GenerateExercises).Methods("POST")
+	admin.HandleFunc("/ai/exercises/regenerate", aiHandler.RegenerateExercises).Methods("POST")
+	admin.HandleFunc("/ai/status", aiHandler.GetAIStatus).Methods("GET")
 
 	// CSRF protection
 	csrfMiddleware := csrf.Protect(

@@ -183,6 +183,28 @@ func (h *AdminHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "User deleted successfully"})
 }
 
+func (h *AdminHandler) RegenerateExercises(w http.ResponseWriter, r *http.Request) {
+	if !h.isAdmin(w, r) {
+		http.Error(w, "Forbidden: Admin access required", http.StatusForbidden)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// For now, this is a placeholder
+	// In a real implementation, we'd have access to the exercise service
+	// which would call the AI service to regenerate exercises
+	
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Exercise regeneration endpoint - implement with AI service",
+		"status":  "not_implemented",
+	})
+}
+
 func (h *AdminHandler) UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 	if !h.isAdmin(w, r) {
 		http.Error(w, "Forbidden: Admin access required", http.StatusForbidden)
